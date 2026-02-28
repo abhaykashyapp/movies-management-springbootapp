@@ -4,6 +4,9 @@ import com.abhay.moviesManagement.entity.Movie;
 import com.abhay.moviesManagement.service.MovieService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -30,8 +33,13 @@ public class MovieController {
     }
 
     @GetMapping("/id/{ID}")
-    public Movie getMovieById(@PathVariable ObjectId ID) {
-        return movieService.findById(ID).orElse(null);
+    public ResponseEntity<Movie> getMovieById(@PathVariable ObjectId ID) {
+        Optional<Movie> movie = movieService.findById(ID);
+
+        if (movie.isPresent()){
+
+            return  new ResponseEntity<>(movie.get(), HttpStatus.OK);
+        }return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping
@@ -46,23 +54,11 @@ public class MovieController {
     }
 
 
+    @PutMapping("/id/{id}")
+    public ResponseEntity<Movie> updateMovie(@PathVariable ObjectId id,
+                                             @RequestBody Movie movie) {
 
-
-    @PutMapping("/id/{ID}")
-    public Movie updateMovies(@PathVariable ObjectId ID,@RequestBody Movie movie) {
-        Movie old = movieService.findById(ID    ).orElse(null);
-        if (old!=null){
-            old.setName(movie.getName()!= null && !movie.getName().equals("") ? movie.getName(): old.getName());
-            old.setGenre(movie.getGenre()!= null && !movie.getGenre().equals("") ? movie.getGenre(): old.getGenre());
-
-        }
-
-movieService.addMovies(old);
-        return old;
+        Movie updated = movieService.updateMovie(id, movie);
+        return ResponseEntity.ok(updated);
     }
-
-
-
-
-
 }

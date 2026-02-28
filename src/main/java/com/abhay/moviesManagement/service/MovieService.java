@@ -33,7 +33,7 @@ return movieRepository.findById(ID);
 
     public void deleteAll(){
         movieRepository.deleteAll();  }
-
+    
 
 
     public  void deleteById(ObjectId id){
@@ -41,5 +41,20 @@ return movieRepository.findById(ID);
     }
 
 
+    public Movie updateMovie(ObjectId id, Movie movie) {
 
+        Movie existing = movieRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Movie not found with id: " + id));
+
+        if (movie.getName() != null && !movie.getName().isBlank()) {
+            existing.setName(movie.getName());
+        }
+
+        if (movie.getGenre() != null && !movie.getGenre().isBlank()) {
+            existing.setGenre(movie.getGenre());
+        }
+
+        return movieRepository.save(existing);
+    }
 }
+
