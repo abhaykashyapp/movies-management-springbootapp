@@ -1,11 +1,12 @@
 package com.abhay.moviesManagement.controller;
 
 import com.abhay.moviesManagement.entity.Movie;
+import com.abhay.moviesManagement.entity.User;
 import com.abhay.moviesManagement.service.MovieService;
+import com.abhay.moviesManagement.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,45 +21,67 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @PostMapping
-    public Movie addMovies(@RequestBody Movie movie) {
-        movie.setDate(LocalDateTime.now());
-        movieService.addMovies(movie);
-        return movie;
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/{userName}")
+    public ResponseEntity<Movie> addMovies(@RequestBody Movie movie, @PathVariable String userName) {
+        try {
+
+
+            movieService.addMovies(movie, userName);
+            return new ResponseEntity<>(movie, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping
-    public List<Movie> getMovies() {
-        return movieService.getAll();
+    @GetMapping("/{userName}")
+    public ResponseEntity<?> getAllMoviesofUser(@PathVariable String userName) {
+
+        User user = userService.findByUserName(userName);
+        List<Movie> all = user.getMovies();
+        if (all != null && !all.isEmpty()) {
+
+            return new ResponseEntity<>(all, HttpStatus.OK);
+
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/id/{ID}")
     public ResponseEntity<Movie> getMovieById(@PathVariable ObjectId ID) {
         Optional<Movie> movie = movieService.findById(ID);
-
-        if (movie.isPresent()){
-
-            return  new ResponseEntity<>(movie.get(), HttpStatus.OK);
-        }return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (movie.isPresent()) {
+            return new ResponseEntity<>(movie.get(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping
-    public void deleteAll() {
+    public ResponseEntity<?> deleteAll() {
         movieService.deleteAll();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
     @DeleteMapping("/id/{ID}")
-    public void deleteById(@PathVariable ObjectId ID) {
+    public ResponseEntity<?> deleteById(@PathVariable ObjectId ID) {
         movieService.deleteById(ID);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
     @PutMapping("/id/{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable ObjectId id,
-                                             @RequestBody Movie movie) {
-
-        Movie updated = movieService.updateMovie(id, movie);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> updateMovie(@PathVariable ObjectId id, @RequestBody Movie movie) {
+        try {
+            Movie updated = movieService.updateMovie(id, movie);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

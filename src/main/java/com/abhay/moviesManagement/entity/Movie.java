@@ -2,6 +2,7 @@ package com.abhay.moviesManagement.entity;
 
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 @Document(collection = "movies")
 @Data
+@NoArgsConstructor
 
 public class Movie {
     @Id
