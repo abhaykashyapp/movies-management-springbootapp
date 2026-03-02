@@ -7,7 +7,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +30,10 @@ public class MovieService {
 
     }
 
+    public void addMovies(Movie movie) {
+        movieRepository.save(movie);
+    }
+
     public List<Movie> getAll() {
         return movieRepository.findAll();
     }
@@ -45,7 +48,10 @@ public class MovieService {
     }
 
 
-    public void deleteById(ObjectId id) {
+    public void deleteById(ObjectId id, String userName) {
+        User user = userService.findByUserName(userName);
+        user.getMovies().removeIf(x -> x.getId().equals(id));
+        userService.addUser(user);
         movieRepository.deleteById(id);
     }
 

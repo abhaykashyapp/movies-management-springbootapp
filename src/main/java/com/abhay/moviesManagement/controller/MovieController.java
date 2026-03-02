@@ -67,21 +67,26 @@ public class MovieController {
     }
 
 
-    @DeleteMapping("/id/{ID}")
-    public ResponseEntity<?> deleteById(@PathVariable ObjectId ID) {
-        movieService.deleteById(ID);
+    @DeleteMapping("/id/{userName}/ {ID}")
+    public ResponseEntity<?> deleteById(@PathVariable ObjectId ID,@PathVariable String userName) {
+        movieService.deleteById(ID,userName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
-    @PutMapping("/id/{id}")
-    public ResponseEntity<?> updateMovie(@PathVariable ObjectId id, @RequestBody Movie movie) {
-        try {
-            Movie updated = movieService.updateMovie(id, movie);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+    @PutMapping("/id/{userName}/{id}")
+    public ResponseEntity<?> updateMovie(@PathVariable String userName, @PathVariable ObjectId id, @RequestBody Movie newMovie) {
+
+Movie old = movieService.findById(id).orElse(null);
+if (old!=null){
+
+    old.setName(newMovie.getName()!=null && !newMovie.getName().equals("") ? newMovie.getName():old.getName());
+    old.setGenre(newMovie.getGenre()!=null && !newMovie.getGenre().equals("") ? newMovie.getGenre():old.getGenre());
+movieService.addMovies(old);
+return  new ResponseEntity<>(old, HttpStatus.OK);
 }
+
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    }
+
