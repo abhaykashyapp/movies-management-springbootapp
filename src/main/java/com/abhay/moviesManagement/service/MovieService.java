@@ -21,7 +21,7 @@ public class MovieService {
     @Autowired
     private UserService userService;
 
-@Transactional
+    @Transactional
     public void addMovies(Movie movie, String userName) {
         User user = userService.findByUserName(userName);
         movie.setDate(LocalDateTime.now());
@@ -73,4 +73,3 @@ public class MovieService {
         return movieRepository.save(existing);
     }
 }
-

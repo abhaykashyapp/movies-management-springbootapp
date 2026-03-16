@@ -31,4 +31,6 @@ private  String password;
 @DBRef
 private List<Movie> movies = new ArrayList<>();
 
+private List<String> roles;
 }
+
